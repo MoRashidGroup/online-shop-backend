@@ -1,0 +1,40 @@
+package com.morashid.OnlineShop.config;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+/**
+ * WebMvcConfig - ina-configure static resources.
+ * 
+ * Inaruhusu picha kutoka folder "uploads/" kuwa accessible kwa:
+ *   http://localhost:8383/uploads/{filename}
+ */
+@Slf4j
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer {
+
+    @Value("${app.upload.dir:uploads}")
+    private String uploadDir;
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Absolute path ya uploads folder
+        Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        
+        // Log kwa debugging
+        log.info("========================================");
+        log.info("Serving static files from: {}", uploadPath);
+        log.info("Folder exists: {}", Files.exists(uploadPath));
+        log.info("========================================");
+
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + uploadPath + "/");
+    }
+}
